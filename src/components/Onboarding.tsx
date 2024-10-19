@@ -36,25 +36,32 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      <div 
-        className="max-w-md w-full h-screen bg-cover bg-center flex flex-col justify-end p-6 space-y-6"
-        style={{ backgroundImage: `url(${onboardingSteps[currentStep].image})` }}
-      >
-        <div className="bg-black bg-opacity-50 rounded-lg p-6 space-y-4">
-          <h2 className="text-2xl font-bold text-center">{onboardingSteps[currentStep].title}</h2>
-          <p className="text-center text-gray-300">{onboardingSteps[currentStep].description}</p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-400">
-              Step {currentStep + 1} of {onboardingSteps.length}
-            </span>
-            <Button onClick={handleNext} className="bg-blue-500 hover:bg-blue-600">
-              {currentStep === onboardingSteps.length - 1 ? "Get Started" : "Next"}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+    <div className="relative w-full h-screen">
+      {onboardingSteps.map((step, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-500 ${
+            index === currentStep ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          style={{ backgroundImage: `url(${step.image})` }}
+        >
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-end p-6">
+            <div className="max-w-md mx-auto w-full space-y-4">
+              <h2 className="text-2xl font-bold text-center text-white">{step.title}</h2>
+              <p className="text-center text-gray-300">{step.description}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-400">
+                  Step {index + 1} of {onboardingSteps.length}
+                </span>
+                <Button onClick={handleNext} className="bg-blue-500 hover:bg-blue-600">
+                  {index === onboardingSteps.length - 1 ? "Get Started" : "Next"}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 };
