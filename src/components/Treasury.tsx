@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Wallet, Coins, ArrowUpDown, Package } from 'lucide-react';
-import { TonClient } from '@ton/ton';
-import { Address } from '@ton/core';
 
 interface TreasuryData {
   balance: string;
@@ -20,24 +18,26 @@ const Treasury: React.FC = () => {
   useEffect(() => {
     const fetchTreasuryData = async () => {
       try {
-        const client = new TonClient({
-          endpoint: 'https://toncenter.com/api/v2/jsonRPC',
-        });
+        const address = 'UQABZJQbHg9ZSKZpko4qp58C_Im07yrq1Lwf1zRRkTIaI7CR';
+        const apiUrl = `https://toncenter.com/api/v2/getAddressInformation?address=${address}`;
+        
+        const response = await fetch(apiUrl);
+        const result = await response.json();
 
-        const address = Address.parse('UQABZJQbHg9ZSKZpko4qp58C_Im07yrq1Lwf1zRRkTIaI7CR');
-        const balance = await client.getBalance(address);
-        const transactions = await client.getTransactions(address, { limit: 1 });
+        if (result.ok) {
+          const balance = parseInt(result.result.balance) / 1e9; // Convert from nanotons to tons
+          const lastTx = result.result.last_transaction_id.lt;
 
-        const nftItems = await client.runMethod(address, 'get_nft_data');
-        const tokenWallet = await client.runMethod(address, 'get_wallet_address');
-
-        setData({
-          balance: `${balance.toNumber() / 1e9} TON`,
-          transactions: transactions.length,
-          lastTransaction: transactions[0]?.now?.toString() || 'N/A',
-          collectibles: nftItems.length,
-          tokens: tokenWallet ? 1 : 0, // Simplified, assuming 1 token if wallet exists
-        });
+          setData({
+            balance: `${balance.toFixed(2)} TON`,
+            transactions: parseInt(result.result.sync_utime.toString()),
+            lastTransaction: new Date(lastTx * 1000).toLocaleString(),
+            collectibles: 0, // We don't have this information from this API
+            tokens: 0, // We don't have this information from this API
+          });
+        } else {
+          throw new Error('Failed to fetch data');
+        }
         setLoading(false);
       } catch (error) {
         console.error('Error fetching treasury data:', error);
