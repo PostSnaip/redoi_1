@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button } from "@/components/ui/button"
-import { Send, Wallet, DollarSign } from 'lucide-react';
+import { Send, Wallet, DollarSign, Coins } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
 const data = [
   { name: 'BTC', value: 4000 },
@@ -12,6 +13,8 @@ const data = [
 ];
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+
   const handleBuy = () => {
     window.open('https://app.ston.fi/swap?chartVisible=false&tt=EQCGyXsqrVyDMP0BZxS3i7Ke-zh9uoddVHETUggmPJMC2WXv&referral_address=UQDosmJftFIbrJsVG0RObWOAAfJxKVVVT44u7RhH9C8Yhe35', '_blank');
   };
@@ -19,6 +22,10 @@ const Dashboard: React.FC = () => {
   const handleConnectWallet = () => {
     // Implement Tonkeeper wallet connection logic here
     console.log('Connecting to Tonkeeper wallet...');
+  };
+
+  const handleTreasuryClick = () => {
+    navigate('/treasury');
   };
 
   return (
@@ -39,7 +46,7 @@ const Dashboard: React.FC = () => {
         </ResponsiveContainer>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Button onClick={handleBuy} className="flex items-center justify-center bg-green-500 hover:bg-green-600">
           <DollarSign className="mr-2 h-4 w-4" />
           BUY
@@ -51,6 +58,10 @@ const Dashboard: React.FC = () => {
         <Button onClick={handleConnectWallet} className="flex items-center justify-center bg-purple-500 hover:bg-purple-600">
           <Wallet className="mr-2 h-4 w-4" />
           Connect Wallet
+        </Button>
+        <Button onClick={handleTreasuryClick} className="flex items-center justify-center bg-yellow-500 hover:bg-yellow-600">
+          <Coins className="mr-2 h-4 w-4" />
+          Treasury
         </Button>
       </div>
     </div>
