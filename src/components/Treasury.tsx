@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Wallet, Coins, ArrowUpDown } from 'lucide-react';
+import { Wallet, Coins, ArrowUpDown, Package } from 'lucide-react';
+import { TonClient } from '@ton/ton';
+import { Address } from '@ton/core';
 
 interface TreasuryData {
   balance: string;
   transactions: number;
   lastTransaction: string;
+  collectibles: number;
+  tokens: number;
 }
 
 const Treasury: React.FC = () => {
@@ -14,15 +18,34 @@ const Treasury: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulating API call to fetch data
-    setTimeout(() => {
-      setData({
-        balance: "1,234,567 TON",
-        transactions: 5678,
-        lastTransaction: "2023-04-15 14:30:45",
-      });
-      setLoading(false);
-    }, 1500);
+    const fetchTreasuryData = async () => {
+      try {
+        const client = new TonClient({
+          endpoint: 'https://toncenter.com/api/v2/jsonRPC',
+        });
+
+        const address = Address.parse('UQABZJQbHg9ZSKZpko4qp58C_Im07yrq1Lwf1zRRkTIaI7CR');
+        const balance = await client.getBalance(address);
+        const transactions = await client.getTransactions(address, { limit: 1 });
+
+        const nftItems = await client.runMethod(address, 'get_nft_data');
+        const tokenWallet = await client.runMethod(address, 'get_wallet_address');
+
+        setData({
+          balance: `${balance.toNumber() / 1e9} TON`,
+          transactions: transactions.length,
+          lastTransaction: transactions[0]?.now?.toString() || 'N/A',
+          collectibles: nftItems.length,
+          tokens: tokenWallet ? 1 : 0, // Simplified, assuming 1 token if wallet exists
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching treasury data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchTreasuryData();
   }, []);
 
   return (
@@ -71,6 +94,38 @@ const Treasury: React.FC = () => {
               <Skeleton className="h-8 w-[200px]" />
             ) : (
               <div className="text-2xl font-bold">{data?.lastTransaction}</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Collectibles
+            </CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-8 w-[100px]" />
+            ) : (
+              <div className="text-2xl font-bold">{data?.collectibles}</div>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Tokens
+            </CardTitle>
+            <Coins className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-8 w-[100px]" />
+            ) : (
+              <div className="text-2xl font-bold">{data?.tokens}</div>
             )}
           </CardContent>
         </Card>
