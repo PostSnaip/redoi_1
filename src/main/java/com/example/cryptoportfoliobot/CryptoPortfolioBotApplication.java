@@ -2,9 +2,11 @@ package com.example.cryptoportfoliobot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.gcp.autoconfigure.core.GcpContextAutoConfiguration;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-@SpringBootApplication(exclude = {GcpContextAutoConfiguration.class})
+@SpringBootApplication
 public class CryptoPortfolioBotApplication {
 
     public static void main(String[] args) {
